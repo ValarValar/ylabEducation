@@ -56,7 +56,7 @@ class Game:
                 self.check_state(comp_row, comp_col, 'O')
 
     def check_state(self, row, col, smb):
-        self.check_all_lines(row, col, smb)
+        return self.check_all_lines(row, col, smb)
 
     def check_all_lines(self, row, col, smb):  # horizontal, vertical, main and secondary diagonals
         # Vertical
@@ -87,13 +87,14 @@ class Game:
                         break
                     cur_row = next_row
                     cur_col = next_col
-            if counter == 5:
-                self.game_run = False
-                self.final_message = "Lose:(" if smb == 'X' else "Win!"
-                for i in line_coords:
-                    self.field[i[0]][i[1]]['background'] = 'pink'
-                self.show_info()
-                return
+            if counter >= 5:
+                if self.field[row][col]['text'] == smb:
+                    self.game_run = False
+                    self.final_message = "Lose:(" if smb == 'X' else "Win!"
+                    for i in line_coords:
+                        self.field[i[0]][i[1]]['background'] = 'pink'
+                    self.show_info()
+                return True
         # draw check
         if self.fields_count % 2 == 0:
             if self.cross_count == int(self.fields_count / 2) and smb == 'O':
@@ -101,12 +102,18 @@ class Game:
         else:
             if (self.cross_count == int(self.fields_count / 2) + 1) and smb == 'X':
                 self.draw()
+        return False
 
     def computer_move(self):
+        i = 0
         while True:
+            i += 1
             row = random.randint(0, self.field_rows - 1)
             col = random.randint(0, self.field_columns - 1)
-            if self.field[row][col]['text'] == ' ':
+            if self.field[row][col]['text'] == ' ' and not self.check_state(row, col, 'O'):
+                self.field[row][col]['text'] = 'O'
+                break
+            elif i >= 500 and self.field[row][col]['text'] == ' ':
                 self.field[row][col]['text'] = 'O'
                 break
         return row, col
