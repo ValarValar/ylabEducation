@@ -4,7 +4,8 @@ from tkinter import Tk, Button
 
 
 class Game:
-    def __init__(self, rows, cols):
+    def __init__(self, rows, cols, difficulty=500):
+        self.difficulty = difficulty
         self.field_rows = rows
         self.field_columns = cols
         self.fields_count = rows * cols
@@ -113,7 +114,7 @@ class Game:
             if self.field[row][col]['text'] == ' ' and not self.check_state(row, col, 'O'):
                 self.field[row][col]['text'] = 'O'
                 break
-            elif i >= 500 and self.field[row][col]['text'] == ' ':
+            elif i >= self.difficulty and self.field[row][col]['text'] == ' ':
                 self.field[row][col]['text'] = 'O'
                 break
         return row, col
