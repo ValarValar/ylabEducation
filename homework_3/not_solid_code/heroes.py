@@ -44,7 +44,7 @@ class SuperHero:
         self.name = name
         self.can_use_ultimate_attack = can_use_ultimate_attack
         self.finder = AntagonistFinder()
-        self.usual_weapons = []
+        self.usual_weapons = ()
 
     def find(self, place):
         self.finder.get_antagonist(place)
@@ -66,7 +66,7 @@ class Superman(SuperHero):
 
     def __init__(self, can_use_ultimate_attack=True):
         super(Superman, self).__init__('Clark Kent', can_use_ultimate_attack)
-        self.usual_weapons = [Legs(), Gun()]
+        self.usual_weapons = (Legs(), Gun())
         self.ultimate_weapon = Lasers()
 
     def ultimate(self):
@@ -77,4 +77,4 @@ class ChackNorris(SuperHero):
 
     def __init__(self):
         super(ChackNorris, self).__init__('Chack Norris', False)
-        self.usual_weapons = [Legs(), Gun()]
+        self.usual_weapons = (Legs(), Gun())

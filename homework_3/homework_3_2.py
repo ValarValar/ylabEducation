@@ -19,13 +19,15 @@ def decorator_cache(func):
     return wrapper
 
 
-def decorator_multicall(call_count, start_sleep_time, border_sleep_time):
+def decorator_multicall(call_count, start_sleep_time, factor, border_sleep_time):
     '''
     В качестве параметров декоратор будет получать:
 
     call_count - число, описывающее кол-во раз запуска функций;
 
     start_sleep_time - в секундах начальное время повтора;
+
+    factor - во сколько раз нужно увеличить время ожидания;
 
     border_sleep_time - в секундах граничное время ожидания.
 
@@ -49,7 +51,7 @@ def decorator_multicall(call_count, start_sleep_time, border_sleep_time):
             for iter_num in range(0, call_count):
                 time.sleep(time_to_sleep)
                 result = func(*args)
-                time_to_sleep = min(start_sleep_time * 2 ** iter_num, border_sleep_time)
+                time_to_sleep = min(start_sleep_time * factor ** iter_num, border_sleep_time)
                 func_info_print(iter_num + 1, time_to_sleep, result)
 
             print("Конец работы")
@@ -65,7 +67,7 @@ def multiplier(number: int):
     return number * 2
 
 
-@decorator_multicall(7, 1, 10)
+@decorator_multicall(7, 1, 3, 10)
 def multiplier1(number: int):
     return number * 2
 
