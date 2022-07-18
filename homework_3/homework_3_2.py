@@ -48,7 +48,7 @@ def decorator_multicall(call_count, start_sleep_time, factor, border_sleep_time)
         def wrapper(*args, **kwargs):
             time_to_sleep = 0
 
-            for iter_num in range(0, call_count):
+            for iter_num in range(call_count):
                 time.sleep(time_to_sleep)
                 result = func(*args)
                 time_to_sleep = min(start_sleep_time * factor ** iter_num, border_sleep_time)
