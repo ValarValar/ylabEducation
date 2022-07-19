@@ -6,8 +6,8 @@ from fastapi import APIRouter, Depends, HTTPException
 from src.api.v1.schemas import PostCreate, PostListResponse, PostModel
 from src.services import PostService, get_post_service
 
-router = APIRouter()
 
+router = APIRouter()
 
 @router.get(
     path="/",
