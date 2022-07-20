@@ -1,7 +1,6 @@
 from datetime import datetime
-from typing import Union
 
-from pydantic import BaseModel, constr, EmailStr
+from pydantic import BaseModel, constr, EmailStr, UUID4
 
 __all__ = (
     "UserModel",
@@ -12,15 +11,19 @@ __all__ = (
 class UserBase(BaseModel):
     username: constr(min_length=5, max_length=40)
     email: EmailStr
-    full_name: Union[str, None] = None
-    disabled: Union[bool, None] = None
 
 
 class UserCreate(UserBase):
-    password: str
+    password: constr(min_length=3, max_length=40)
 
 
-class UserModel(UserBase):
+class UserFullOut(UserBase):
+    uuid: UUID4
+    created_at: datetime
+    is_totp_enabled: bool
+    is_superuser: bool
+    is_active: bool
+
+
+class UserModel(UserFullOut):
     hashed_password: str
-    id: Union[int, None] = None
-    created_at: Union[datetime, None] = None

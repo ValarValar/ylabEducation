@@ -46,6 +46,7 @@ def post_detail(
     response_model=PostModel,
     summary="Создать пост",
     tags=["posts"],
+    status_code=201
 )
 def post_create(
     post: PostCreate, post_service: PostService = Depends(get_post_service),
