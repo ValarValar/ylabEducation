@@ -1,13 +1,17 @@
 from http import HTTPStatus
 from typing import Optional
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Security
+from fastapi.security import HTTPAuthorizationCredentials
 
 from src.api.v1.schemas import PostCreate, PostListResponse, PostModel
 from src.services import PostService, get_post_service
-
+from src.services.auth import Auth
 
 router = APIRouter()
+
+auth_handler = Auth()
+
 
 @router.get(
     path="/",
@@ -49,7 +53,12 @@ def post_detail(
     status_code=201
 )
 def post_create(
-    post: PostCreate, post_service: PostService = Depends(get_post_service),
+        post: PostCreate, post_service: PostService = Depends(get_post_service),
+        credentials: HTTPAuthorizationCredentials = Security(auth_handler.security),
 ) -> PostModel:
+    token = credentials.credentials
+    token_data = auth_handler.decode_token(token)
+    if not token_data:
+        raise auth_handler.incorrect_credentials_401_exception
     post: dict = post_service.create_post(post=post)
     return PostModel(**post)

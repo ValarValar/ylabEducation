@@ -1,22 +1,14 @@
 from functools import lru_cache
-from typing import Optional
 
 from fastapi import Depends
-from passlib.context import CryptContext
 from sqlmodel import Session
 
-from src.api.v1.schemas.users import UserCreate
+from src.api.v1.schemas.users import UserCreate, UserUpdate
 from src.db import AbstractCache, get_cache, get_session
 from src.models.user import User
 from src.services import ServiceMixin
 
 __all__ = ("UserService", "get_user_service")
-
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-
-
-def get_password_hash(password):
-    return pwd_context.hash(password)
 
 
 class UserService(ServiceMixin):
@@ -28,21 +20,30 @@ class UserService(ServiceMixin):
         else:
             return False
 
-    def get_user(self, item_username: str) -> Optional[dict]:
-
+    def get_user(self, item_username: str):
         user = self.session.query(User).filter(User.username == item_username).first()
-        return user.dict() if user else None
+        return user if user else None
 
     def create_user(self, user: UserCreate) -> dict:
         new_user = User(
             username=user.username,
             email=user.email,
-            hashed_password=get_password_hash(user.password)
+            hashed_password=user.password
         )
         self.session.add(new_user)
         self.session.commit()
         self.session.refresh(new_user)
         return new_user.dict()
+
+    def update_user(self, update_user: UserUpdate, current_username: str):
+        update_data = update_user.dict(exclude_unset=True)
+        current_user = self.get_user(current_username)
+        if current_user:
+            for key, value in update_data.items():
+                setattr(current_user, key, value)
+            self.session.commit()
+            self.session.refresh(current_user)
+        return current_user
 
 
 @lru_cache()
