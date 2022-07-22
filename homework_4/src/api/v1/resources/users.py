@@ -15,7 +15,7 @@ def get_current_user(
         user_service: UserService = Depends(get_user_service)
 ) -> dict:
     token = credentials.credentials
-    token_data = auth_handler.decode_token(token)
+    token_data = auth_handler.token_service.decode_token(token)
     user = user_service.get_user(item_username=token_data.username)
     if user:
         user = user.dict()
@@ -54,7 +54,7 @@ def update_users_me(
         user_service: UserService = Depends(get_user_service),
 ) -> dict:
     token = credentials.credentials
-    token_data = auth_handler.decode_token(token)
+    token_data = auth_handler.token_service.decode_token(token)
     current_username = token_data.username
     updated_user = user_service.update_user(update_user, current_username)
 
@@ -62,7 +62,7 @@ def update_users_me(
         raise auth_handler.incorrect_credentials_401_exception
 
     user_full_out = UserFullOut(**updated_user.dict())
-    new_access_token = auth_handler.create_access_token_user(update_user)
+    new_access_token = auth_handler.create_access_token_user(user_full_out)
     return_data = {
         "msg": "Update is successful. Please use new access_token.",
         "user": user_full_out,

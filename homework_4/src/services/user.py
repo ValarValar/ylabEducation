@@ -1,9 +1,10 @@
 from functools import lru_cache
+from typing import Union
 
 from fastapi import Depends
 from sqlmodel import Session
 
-from src.api.v1.schemas.users import UserCreate, UserUpdate
+from src.api.v1.schemas.users import UserCreate, UserUpdate, UserFullOut
 from src.db import AbstractCache, get_cache, get_session
 from src.models.user import User
 from src.services import ServiceMixin
@@ -20,11 +21,18 @@ class UserService(ServiceMixin):
         else:
             return False
 
-    def get_user(self, item_username: str):
+    def get_user(self, item_username: str) -> Union[User, None]:
         user = self.session.query(User).filter(User.username == item_username).first()
         return user if user else None
 
-    def create_user(self, user: UserCreate) -> dict:
+    def get_user_info_by_username_to_encode(self, username: str, ) -> Union[UserFullOut, None]:
+        user = self.get_user(username)
+        if user:
+            user_full_out = UserFullOut(**user.dict())
+            return user_full_out
+        return None
+
+    def create_user(self, user: UserCreate) -> User:
         new_user = User(
             username=user.username,
             email=user.email,
@@ -33,9 +41,9 @@ class UserService(ServiceMixin):
         self.session.add(new_user)
         self.session.commit()
         self.session.refresh(new_user)
-        return new_user.dict()
+        return new_user
 
-    def update_user(self, update_user: UserUpdate, current_username: str):
+    def update_user(self, update_user: UserUpdate, current_username: str) -> Union[User, None]:
         update_data = update_user.dict(exclude_unset=True)
         current_user = self.get_user(current_username)
         if current_user:

@@ -57,7 +57,7 @@ def post_create(
         credentials: HTTPAuthorizationCredentials = Security(auth_handler.security),
 ) -> PostModel:
     token = credentials.credentials
-    token_data = auth_handler.decode_token(token)
+    token_data = auth_handler.token_service.decode_token(token)
     if not token_data:
         raise auth_handler.incorrect_credentials_401_exception
     post: dict = post_service.create_post(post=post)

@@ -29,7 +29,7 @@ def signup_user(
         )
     password = user.password
     user.password = auth_handler.get_password_hash(password)
-    user: dict = user_service.create_user(user=user)
+    user = user_service.create_user(user=user).dict()
     full_out_user = UserFullOut(**user)
     return_data = {"msg": "User created.", "user": full_out_user}
     return return_data
@@ -49,4 +49,4 @@ async def login_for_access_token(
 @router.post("/refresh")
 async def refresh_tokens(credentials: HTTPAuthorizationCredentials = Security(auth_handler.security)):
     refresh_token = credentials.credentials
-    return auth_handler.refresh_tokens(refresh_token)
+    return auth_handler.token_service.refresh_tokens(refresh_token)
