@@ -27,7 +27,7 @@ class Auth:
             self, username: str, password: str,
             user_service: UserService = Depends(get_user_service)
     ):
-        user = user_service.get_user(username)
+        user = user_service.get_user_by_username(username)
         if user:
             user = user.dict()
         else:
@@ -45,6 +45,10 @@ class Auth:
 
     def create_refresh_token_user(self, user_model: UserFullOut, ):
         return self.token_service.encode_refresh_token(user_model)
+
+    def logout(self, access_token: str, all: bool = False):
+        self.token_service.put_access_token_in_blocked_db(access_token)
+        self.token_service.delete_refresh_token_in_active_db(access_token, all)
 
 
 # get_post_service — это провайдер PostService. Синглтон

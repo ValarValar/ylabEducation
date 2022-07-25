@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, Security
+from fastapi import APIRouter, Depends, Security
 from fastapi.security import HTTPAuthorizationCredentials
 
 from src.api.v1.schemas.users import UserFullOut, UserUpdate
@@ -10,26 +10,6 @@ router = APIRouter()
 auth_handler = get_auth_class()
 
 
-def get_current_user(
-        credentials: HTTPAuthorizationCredentials = Security(auth_handler.security),
-        user_service: UserService = Depends(get_user_service)
-) -> dict:
-    token = credentials.credentials
-    token_data = auth_handler.token_service.decode_token(token)
-    user = user_service.get_user(item_username=token_data.username)
-    if user:
-        user = user.dict()
-    else:
-        raise auth_handler.incorrect_credentials_401_exception
-    return user
-
-
-def get_current_active_user(current_user: dict = Depends(get_current_user)):
-    if not current_user.get("is_active"):
-        raise HTTPException(status_code=400, detail="Inactive user")
-    return current_user
-
-
 @router.get(
     path="/me",
     response_model=dict,
@@ -37,8 +17,13 @@ def get_current_active_user(current_user: dict = Depends(get_current_user)):
     tags=["users"],
 )
 def read_users_me(
-        current_user: dict = Depends(get_current_active_user)
+        credentials: HTTPAuthorizationCredentials = Security(auth_handler.security),
+        user_service: UserService = Depends(get_user_service)
 ) -> dict:
+    token = credentials.credentials
+    current_user = user_service.get_current_active_user(token)
+    if not current_user:
+        raise auth_handler.incorrect_credentials_401_exception
     return {"user": UserFullOut(**current_user)}
 
 
@@ -54,9 +39,7 @@ def update_users_me(
         user_service: UserService = Depends(get_user_service),
 ) -> dict:
     token = credentials.credentials
-    token_data = auth_handler.token_service.decode_token(token)
-    current_username = token_data.username
-    updated_user = user_service.update_user(update_user, current_username)
+    updated_user = user_service.update_user(update_user, token)
 
     if not updated_user:
         raise auth_handler.incorrect_credentials_401_exception

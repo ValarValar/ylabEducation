@@ -50,3 +50,17 @@ async def login_for_access_token(
 async def refresh_tokens(credentials: HTTPAuthorizationCredentials = Security(auth_handler.security)):
     refresh_token = credentials.credentials
     return auth_handler.token_service.refresh_tokens(refresh_token)
+
+
+@router.post("/logout")
+def logout(credentials: HTTPAuthorizationCredentials = Security(auth_handler.security), ):
+    access_token = credentials.credentials
+    auth_handler.logout(access_token)
+    return {"msg": "You have been logged out."}
+
+
+@router.post("/logout_all")
+def logout_all(credentials: HTTPAuthorizationCredentials = Security(auth_handler.security)):
+    access_token = credentials.credentials
+    auth_handler.logout(access_token, all=True)
+    return {"msg": "You have been logged out from all devices."}
