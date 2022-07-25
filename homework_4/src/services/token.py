@@ -1,7 +1,8 @@
 import uuid
 from datetime import datetime, timedelta
-from fastapi import HTTPException, status
+from functools import lru_cache
 
+from fastapi import HTTPException, status
 from jose import jwt, JWTError
 
 from src.api.v1.schemas.tokens import TokenData
@@ -69,3 +70,8 @@ class TokenService:
         new_refresh_token = self.encode_token(user_data_model_to_encode, type='refresh_token',
                                               expire_time=self.REFRESH_TOKEN_EXPIRE_MINUTES, )
         return {"access_token": new_access_token, "refresh_token": new_refresh_token}
+
+
+@lru_cache()
+def get_token_service() -> TokenService:
+    return TokenService()

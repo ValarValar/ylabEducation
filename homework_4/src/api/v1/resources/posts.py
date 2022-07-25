@@ -6,11 +6,11 @@ from fastapi.security import HTTPAuthorizationCredentials
 
 from src.api.v1.schemas import PostCreate, PostListResponse, PostModel
 from src.services import PostService, get_post_service
-from src.services.auth import Auth
+from src.services.auth import get_auth_class
 
 router = APIRouter()
 
-auth_handler = Auth()
+auth_handler = get_auth_class()
 
 
 @router.get(
@@ -20,7 +20,7 @@ auth_handler = Auth()
     tags=["posts"],
 )
 def post_list(
-    post_service: PostService = Depends(get_post_service),
+        post_service: PostService = Depends(get_post_service),
 ) -> PostListResponse:
     posts: dict = post_service.get_post_list()
     if not posts:
@@ -36,7 +36,7 @@ def post_list(
     tags=["posts"],
 )
 def post_detail(
-    post_id: int, post_service: PostService = Depends(get_post_service),
+        post_id: int, post_service: PostService = Depends(get_post_service),
 ) -> PostModel:
     post: Optional[dict] = post_service.get_post_detail(item_id=post_id)
     if not post:

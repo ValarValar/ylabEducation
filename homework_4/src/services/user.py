@@ -32,6 +32,8 @@ class UserService(ServiceMixin):
             return user_full_out
         return None
 
+    #def get_user_by_token
+
     def create_user(self, user: UserCreate) -> User:
         new_user = User(
             username=user.username,

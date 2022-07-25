@@ -2,12 +2,12 @@ from fastapi import APIRouter, Depends, HTTPException, Security
 from fastapi.security import HTTPAuthorizationCredentials
 
 from src.api.v1.schemas.users import UserFullOut, UserUpdate
-from src.services.auth import Auth
+from src.services.auth import get_auth_class
 from src.services.user import UserService, get_user_service
 
 router = APIRouter()
 
-auth_handler = Auth()
+auth_handler = get_auth_class()
 
 
 def get_current_user(

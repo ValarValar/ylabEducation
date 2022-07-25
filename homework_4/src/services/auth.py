@@ -1,16 +1,18 @@
+from functools import lru_cache
+
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPBearer
 from passlib.context import CryptContext
 
 from src.api.v1.schemas.users import UserFullOut
-from src.services.token import TokenService
+from src.services.token import get_token_service
 from src.services.user import UserService, get_user_service
 
 
 class Auth:
     hasher = CryptContext(schemes=["bcrypt"], deprecated="auto")
     security = HTTPBearer()
-    token_service = TokenService()
+    token_service = get_token_service()
 
     incorrect_credentials_401_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
@@ -44,3 +46,8 @@ class Auth:
     def create_refresh_token_user(self, user_model: UserFullOut, ):
         return self.token_service.encode_refresh_token(user_model)
 
+
+# get_post_service — это провайдер PostService. Синглтон
+@lru_cache()
+def get_auth_class() -> Auth:
+    return Auth()
